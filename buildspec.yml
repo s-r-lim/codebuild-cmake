@@ -22,7 +22,7 @@ phases:
   build:
     commands:
       - echo Building CMake....
-      - (cd ./${BUILD_CMAKE_NAME} && exec make)
+      - (cd ./${BUILD_CMAKE_NAME} && exec make -j $(nproc --all))
       - mkdir -p /tmp/${BUILD_CMAKE_NAME}
       - (cd ./cmake-3.31.2 && exec make DESTDIR=/tmp/${BUILD_CMAKE_NAME} install)
       - (cd /tmp/${BUILD_CMAKE_NAME} && mv usr/local/* .)
