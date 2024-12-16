@@ -33,7 +33,7 @@ phases:
       - echo Packaging CMake into package...
       - rpmdev-setuptree
       - mv /tmp/${BUILD_CMAKE_NAME}.tar.gz ~/rpmbuild/SOURCES/.
-      - cp cmake.spec ~/rpmbuild/SPECS/cmake.spec
+      - envsubst '${CODEBUILD_BUILD_NUMBER}' < cmake.spec > ~/rpmbuild/SPECS/cmake.spec
       - rpmbuild -bb ~/rpmbuild/SPECS/cmake.spec
       - cp -r ~/rpmbuild/RPMS/* ./dist/.
 artifacts:

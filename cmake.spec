@@ -1,6 +1,6 @@
 Name: cmake
 Version: 3.31.2
-Release: 1%{?dist}
+Release: ${CODEBUILD_BUILD_NUMBER}%{?dist}
 Summary: CMake Binary Package
 ExclusiveArch: x86_64 aarch64
 License: BSD
