@@ -1,0 +1,45 @@
+version: 0.2
+
+env:
+  variables:
+    BUILD_CMAKE_VERSION: "3.31.2"
+    BUILD_CMAKE_NAME: "cmake-3.31.2"
+phases:
+  install:
+    commands:
+      - echo Installing build environment...
+      - yum -y groupinstall "Development Tools"
+      - yum -y install openssl-devel
+      - dnf install -y rpmdevtools rpmlint
+  pre_build:
+    commands:
+      - echo Obtaining sources...
+      - wget https://github.com/Kitware/CMake/releases/download/v${BUILD_CMAKE_VERSION}/cmake-${BUILD_CMAKE_VERSION}.tar.gz
+      - tar -xzvf cmake-${BUILD_CMAKE_VERSION}.tar.gz
+      - echo Setup environment for building CMake....
+      - (cd ./${BUILD_CMAKE_NAME} && exec ./bootstrap)
+      - mkdir -p dist/
+  build:
+    commands:
+      - echo Building CMake....
+      - (cd ./${BUILD_CMAKE_NAME} && exec make)
+      - mkdir -p /tmp/${BUILD_CMAKE_NAME}
+      - (cd ./cmake-3.31.2 && exec make DESTDIR=/tmp/${BUILD_CMAKE_NAME} install)
+      - (cd /tmp/${BUILD_CMAKE_NAME} && mv usr/local/* .)
+      - (cd /tmp/${BUILD_CMAKE_NAME} && rm -r usr/)
+      - (cd /tmp && tar --create --file ${BUILD_CMAKE_NAME}.tar.gz ${BUILD_CMAKE_NAME})
+  post_build:
+    commands:
+      - echo Packaging CMake into package...
+      - rpmdev-setuptree
+      - mv /tmp/${BUILD_CMAKE_NAME}.tar.gz ~/rpmbuild/SOURCES/.
+      - cp cmake.spec ~/rpmbuild/SPECS/cmake.spec
+      - rpmbuild -bb ~/rpmbuild/SPECS/cmake.spec
+      - cp -r ~/rpmbuild/RPMS/* ./dist/.
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'dist'
+
+
+
